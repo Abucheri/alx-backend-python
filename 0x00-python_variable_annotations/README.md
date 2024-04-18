@@ -1,5 +1,8 @@
 # 0x00. Python - Variable Annotations
 
+![y9y25tefi5401](https://github.com/Abucheri/alx-backend-python/assets/24778489/b5a1c1f2-d672-4177-9005-87c41af5db94)
+
+
 ## Tasks
 
 0. Basic annotations - add
