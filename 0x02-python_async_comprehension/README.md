@@ -1,5 +1,8 @@
 # 0x02. Python - Async Comprehension
 
+<img width="638" alt="ee85b9f67c384e29525b" src="https://github.com/Abucheri/alx-backend-python/assets/24778489/d823c67b-9e80-4c10-985f-b4607a7d1e51">
+
+
 ## Tasks
 
 0. Async Generator
