@@ -111,6 +111,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     def setUpClass(cls):
         """Set up the test class."""
 
+        # Patch requests.get method to return example payloads from fixtures
         cls.get_patcher = patch('requests.get', side_effect=HTTPError)
 
     @classmethod
