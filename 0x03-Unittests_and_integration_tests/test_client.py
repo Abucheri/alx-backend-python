@@ -121,7 +121,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         # Stop the patcher
         cls.get_patcher.stop()
 
-    def test_public_repos_integration(self):
+    def test_public_repos(self):
         """Test GithubOrgClient.public_repos method."""
 
         # Create an instance of GithubOrgClient
@@ -129,7 +129,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
         assert True
 
-    def test_public_repos_integration_apache2(self):
+    def test_public_repos_with_license(self):
         """Test GithubOrgClient.public_repos method with 'apache2' license."""
 
         # Create an instance of GithubOrgClient
