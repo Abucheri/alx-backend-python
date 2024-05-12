@@ -2,7 +2,7 @@
 """Test suite for client module."""
 
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, PropertyMock
 from parameterized import parameterized
 
 
@@ -51,6 +51,32 @@ class TestGithubOrgClient(unittest.TestCase):
 
         # Assert that the return value matches the expected URL
         self.assertEqual(public_repos_url, expected_url)
+
+        # Assert that get_json was called exactly once
+        mock_get_json.assert_called_once()
+
+    @patch('client.get_json')
+    @patch('client.GithubOrgClient._public_repos_url',
+           new_callable=PropertyMock)
+    def test_public_repos(self, mock_public_repos_url, mock_get_json):
+        """Test GithubOrgClient.public_repos method."""
+
+        # Mock the public_repos_url property
+        mock_url = "https://api.github.com/orgs/google/repos"
+        mock_public_repos_url.return_value = mock_url
+
+        # Mock get_json to return a payload of your choice
+        mock_get_json.return_value = [{"name": "repo1"}, {"name": "repo2"}]
+
+        # Create an instance of GithubOrgClient
+        test_client = GithubOrgClient("google")
+
+        # Call the method under test
+        repos = test_client.public_repos()
+
+        # Assert that the return value matches the expected
+        # list of repositories
+        self.assertEqual(repos, ["repo1", "repo2"])
 
         # Assert that get_json was called exactly once
         mock_get_json.assert_called_once()
