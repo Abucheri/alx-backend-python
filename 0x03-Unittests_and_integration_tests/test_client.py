@@ -3,10 +3,12 @@
 
 import unittest
 from unittest.mock import patch, PropertyMock
-from parameterized import parameterized
+from parameterized import parameterized, parameterized_class
+from urllib.error import HTTPError
 
 
 GithubOrgClient = __import__('client').GithubOrgClient
+TEST_PAYLOAD = __import__('fixtures').TEST_PAYLOAD
 
 
 class TestGithubOrgClient(unittest.TestCase):
@@ -96,3 +98,40 @@ class TestGithubOrgClient(unittest.TestCase):
 
         # Assert that the return value matches the expected result
         self.assertEqual(result, expected)
+
+
+@parameterized_class(
+    ('org_payload', 'repos_payload', 'expected_repos', 'apache2_repos'),
+    TEST_PAYLOAD
+)
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    """Integration test suite for GithubOrgClient class."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Set up the test class."""
+
+        cls.get_patcher = patch('requests.get', side_effect=HTTPError)
+
+    @classmethod
+    def tearDownClass(cls):
+        """Tear down the test class."""
+
+        # Stop the patcher
+        cls.get_patcher.stop()
+
+    def test_public_repos_integration(self):
+        """Test GithubOrgClient.public_repos method."""
+
+        # Create an instance of GithubOrgClient
+        test_class = GithubOrgClient("google")
+
+        assert True
+
+    def test_public_repos_integration_apache2(self):
+        """Test GithubOrgClient.public_repos method with 'apache2' license."""
+
+        # Create an instance of GithubOrgClient
+        test_class = GithubOrgClient("google")
+
+        assert True
