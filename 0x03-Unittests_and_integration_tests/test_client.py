@@ -24,7 +24,7 @@ class TestGithubOrgClient(unittest.TestCase):
         test_client = GithubOrgClient(org_name)
 
         # Call the method under test
-        test_return = test_client.org()
+        test_return = test_client.org
 
         # Assert that the return value matches the expected payload
         self.assertEqual(test_return, mock_get_json.return_value)
