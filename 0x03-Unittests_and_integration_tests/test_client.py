@@ -2,9 +2,8 @@
 """Test suite for client module."""
 
 import unittest
-from unittest.mock import patch, PropertyMock, Mock, call
+from unittest.mock import patch, PropertyMock, Mock
 from parameterized import parameterized, parameterized_class
-from urllib.error import HTTPError
 
 
 GithubOrgClient = __import__('client').GithubOrgClient
