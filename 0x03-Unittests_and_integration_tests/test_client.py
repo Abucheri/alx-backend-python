@@ -127,13 +127,6 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         options = {org_payload["repos_url"]: repos_mock}
         cls.get.side_effect = lambda url: options.get(url, org_mock)
 
-    @classmethod
-    def tearDownClass(cls):
-        """Tear down the test class."""
-
-        # Stop the patcher
-        cls.get_patcher.stop()
-
     def test_public_repos(self):
         """Test GithubOrgClient.public_repos method."""
 
@@ -164,3 +157,10 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
                          self.apache2_repos)
         self.get.assert_has_calls([call("https://api.github.com/orgs/google"),
                                   call(self.org_payload["repos_url"])])
+
+    @classmethod
+    def tearDownClass(cls):
+        """Tear down the test class."""
+
+        # Stop the patcher
+        cls.get_patcher.stop()
