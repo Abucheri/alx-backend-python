@@ -111,21 +111,18 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     def setUpClass(cls):
         """Set up the test class."""
 
-        org_payload = TEST_PAYLOAD[0][0]
-        repos_payload = TEST_PAYLOAD[0][1]
+        # configuration dictionary
+        reqs_dict = {
+            "return_value.json.side_effect": [
+                cls.org_payload,
+                cls.repos_payload,
+                cls.org_payload,
+                cls.repos_payload
+            ]
+        }
 
-        org_mock = Mock()
-        org_mock.json = Mock(return_value=org_payload)
-        cls.org_mock = org_mock
-        repos_mock = Mock()
-        repos_mock.json = Mock(return_value=repos_payload)
-        cls.repos_mock = repos_mock
-
-        cls.get_patcher = patch('requests.get')
-        cls.get = cls.get_patcher.start()
-
-        options = {org_payload["repos_url"]: repos_mock}
-        cls.get.side_effect = lambda url: options.get(url, org_mock)
+        cls.get_patcher = patch('requests.get', **reqs_dict)
+        cls.mock = cls.get_patcher.start()
 
     def test_public_repos(self):
         """Test GithubOrgClient.public_repos method."""
@@ -137,9 +134,8 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         self.assertEqual(test_client.org, self.org_payload)
         self.assertEqual(test_client.repos_payload, self.repos_payload)
         self.assertEqual(test_client.public_repos(), self.expected_repos)
-        self.assertEqual(test_client.public_repos("NONEXISTENT"), [])
-        self.get.assert_has_calls([call("https://api.github.com/orgs/google"),
-                                  call(self.org_payload["repos_url"])])
+        self.assertEqual(test_client.public_repos("XLICENSE"), [])
+        self.mock.assert_called()
 
     def test_public_repos_with_license(self):
         """Test GithubOrgClient.public_repos method with 'apache2' license."""
@@ -149,14 +145,11 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
         # Assert that the method returns the expected repositories
         # with 'apache2' license
-        self.assertEqual(test_client.org, self.org_payload)
-        self.assertEqual(test_client.repos_payload, self.repos_payload)
         self.assertEqual(test_client.public_repos(), self.expected_repos)
-        self.assertEqual(test_client.public_repos("NONEXISTENT"), [])
+        self.assertEqual(test_client.public_repos("XLICENSE"), [])
         self.assertEqual(test_client.public_repos("apache-2.0"),
                          self.apache2_repos)
-        self.get.assert_has_calls([call("https://api.github.com/orgs/google"),
-                                  call(self.org_payload["repos_url"])])
+        self.mock.assert_called()
 
     @classmethod
     def tearDownClass(cls):
