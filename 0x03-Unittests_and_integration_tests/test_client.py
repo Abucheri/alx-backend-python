@@ -2,7 +2,7 @@
 """Test suite for client module."""
 
 import unittest
-from unittest.mock import patch, PropertyMock
+from unittest.mock import patch, PropertyMock, Mock, call
 from parameterized import parameterized, parameterized_class
 from urllib.error import HTTPError
 
@@ -111,8 +111,21 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     def setUpClass(cls):
         """Set up the test class."""
 
-        # Patch requests.get method to return example payloads from fixtures
-        cls.get_patcher = patch('requests.get', side_effect=HTTPError)
+        org_payload = TEST_PAYLOAD[0][0]
+        repos_payload = TEST_PAYLOAD[0][1]
+
+        org_mock = Mock()
+        org_mock.json = Mock(return_value=org_payload)
+        cls.org_mock = org_mock
+        repos_mock = Mock()
+        repos_mock.json = Mock(return_value=repos_payload)
+        cls.repos_mock = repos_mock
+
+        cls.get_patcher = patch('requests.get')
+        cls.get = cls.get_patcher.start()
+
+        options = {org_payload["repos_url"]: repos_mock}
+        cls.get.side_effect = lambda url: options.get(url, org_mock)
 
     @classmethod
     def tearDownClass(cls):
@@ -125,14 +138,29 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         """Test GithubOrgClient.public_repos method."""
 
         # Create an instance of GithubOrgClient
-        test_class = GithubOrgClient("google")
+        test_client = GithubOrgClient("google")
 
-        assert True
+        # Assert that the method returns the expected repositories
+        self.assertEqual(test_client.org, self.org_payload)
+        self.assertEqual(test_client.repos_payload, self.repos_payload)
+        self.assertEqual(test_client.public_repos(), self.expected_repos)
+        self.assertEqual(test_client.public_repos("NONEXISTENT"), [])
+        self.get.assert_has_calls([call("https://api.github.com/orgs/google"),
+                                  call(self.org_payload["repos_url"])])
 
     def test_public_repos_with_license(self):
         """Test GithubOrgClient.public_repos method with 'apache2' license."""
 
         # Create an instance of GithubOrgClient
-        test_class = GithubOrgClient("google")
+        test_client = GithubOrgClient("google")
 
-        assert True
+        # Assert that the method returns the expected repositories
+        # with 'apache2' license
+        self.assertEqual(test_client.org, self.org_payload)
+        self.assertEqual(test_client.repos_payload, self.repos_payload)
+        self.assertEqual(test_client.public_repos(), self.expected_repos)
+        self.assertEqual(test_client.public_repos("NONEXISTENT"), [])
+        self.assertEqual(test_client.public_repos("apache-2.0"),
+                         self.apache2_repos)
+        self.get.assert_has_calls([call("https://api.github.com/orgs/google"),
+                                  call(self.org_payload["repos_url"])])
